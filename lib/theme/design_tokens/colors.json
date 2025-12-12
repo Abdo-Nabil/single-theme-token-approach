@@ -1,0 +1,22 @@
+{
+  "pageBg": {
+    "light": "#F5F5F5",
+    "dark": "#121212"
+  },
+  "pageFg": {
+    "light": "#121212",
+    "dark": "#EDEDED"
+  },
+  "buttonPrimaryBg": {
+    "light": "#0065FF",
+    "dark": "#4A8DFF"
+  },
+  "buttonPrimaryFg": {
+    "light": "#FFFFFF",
+    "dark": "#000000"
+  },
+  "statusSuccess": {
+    "light": "#4CAF50",
+    "dark": "#81C784"
+  }
+}
