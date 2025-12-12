@@ -1,27 +1,39 @@
-# 🎨 Flutter Theme & Color System
+# 🎨 Flutter Theme & Color System (Single Brand + Cubit)
 
 ## 🧭 Overview
 
-This project provides a **centralized, code-generated theme and color system for Flutter applications**.  
-Its primary goal is to enforce visual consistency, eliminate manual color duplication, and support light/dark theming from a single source of truth.
+This project provides a **centralized, code-generated theme and color system for Flutter applications**, enhanced with **Cubit-based runtime control** for theme mode changes.
+
+Its primary goals are to:
+
+- enforce visual consistency
+- eliminate manual color duplication
+- provide a single source of truth for colors
+- support **light / dark switching at runtime**
+- keep widgets free from theme logic
 
 The system is based on:
 
-- 🗂️ JSON-based color definitions
-- ⚙️ A build-time generator that produces strongly-typed Dart code
-- 🎯 Direct integration with Flutter’s `ThemeData`
+- 🗂️ **JSON-based color tokens** (single brand)
+- ⚙️ **Build-time code generation** (no runtime parsing)
+- 🎯 **Typed integration with `ThemeData`**
+- 🎛️ **ThemeCubit** to control theme mode
 
-This approach is ideal for **design-system–driven applications** and scales cleanly as the number of colors grows.
+This approach is ideal for design-system–driven applications that use one brand but still require a clean, scalable theming solution.
+
+👉 For a full multi-brand implementation (multiple brands, shared token schema, and runtime brand switching), see:
+https://github.com/Abdo-Nabil/multi_theme_token_approach
 
 ---
 
 ## 🏗️ High-Level Architecture
 
-The system is structured around three responsibilities:
+The system is structured around **four responsibilities**:
 
 1. 🎨 **Color Definition** – Declarative JSON tokens
 2. 🛠️ **Code Generation** – Dart files generated at build time
-3. 🧩 **Theme Integration** – Tokens exposed through Flutter theming
+3. 🧩 **Theme Integration** – Tokens exposed via Flutter theming
+4. 🎛️ **Runtime Control** – Cubit manages theme mode changes
 
 ```
 colors.json
@@ -32,6 +44,8 @@ app_colors.g.dart
    ↓
 context_colors.dart / app_theme.dart
    ↓
+ThemeCubit (ThemeMode)
+   ↓
 Flutter Widgets
 ```
 
@@ -39,10 +53,32 @@ Flutter Widgets
 
 ## 📁 Folder & File Responsibilities
 
-### 🗂️ `colors.json`
+```
+lib/
+  theme/
+    design_tokens/
+      colors.json              # 🎨 Single brand tokens
 
-The **single source of truth** for all application colors.  
-Each color must define **light** and **dark** variants.
+    theme_generator.dart       # ⚙️ Build-time generator
+
+    app_colors.g.dart          # 🤖 AUTO-GENERATED
+
+    context_colors.dart
+
+    cubit/
+      theme_cubit.dart
+      theme_state.dart
+
+    app_theme.dart
+```
+
+---
+
+## 🎨 `colors.json`
+
+The **single source of truth** for all application colors.
+
+Each token must define **light** and **dark** variants.
 
 Example:
 
@@ -51,29 +87,25 @@ Example:
   "pageBg": {
     "light": "#F5F5F5",
     "dark": "#121212"
+  },
+  "pageFg": {
+    "light": "#121212",
+    "dark": "#EDEDED"
   }
 }
 ```
 
-Rules:
-
-- Keys must be valid Dart identifiers
-- Values must be hex color strings
-- Both `light` and `dark` values are required
-
 ---
 
-### ⚙️ `theme_generator.dart`
+## ⚙️ `theme_generator.dart`
 
-A build-time utility script responsible for:
+A **build-time utility script** responsible for:
 
-- Reading `design_tokens/colors.json`
-- Validating token structure
-- Generating strongly-typed Dart color APIs
+- reading `design_tokens/colors.json`
+- validating token structure
+- generating strongly-typed Dart color APIs
 
-This script is **not used at runtime**.
-
-Usage:
+Run manually or in CI:
 
 ```bash
 dart lib/theme/theme_generator.dart
@@ -81,42 +113,30 @@ dart lib/theme/theme_generator.dart
 
 ---
 
-### 🧬 `app_colors.g.dart` (Generated)
+## 🧬 `app_colors.g.dart` (Generated)
 
 ⚠️ **Auto-generated — do not edit manually**
 
 Contains:
 
-- Typed color fields
-- Light & dark color mappings
-- Compile-time safety
+- `AppColors extends ThemeExtension<AppColors>`
+- typed color fields
+- automatic light/dark resolution
 
 ---
 
-### 🧩 `context_colors.dart`
+## 🎛️ ThemeCubit (Runtime Control)
 
-Provides ergonomic access to colors via `BuildContext`.
+The `ThemeCubit` controls **only theme mode**:
 
-```dart
-final colors = context.colors;
-```
+- `ThemeMode.system`
+- `ThemeMode.light`
+- `ThemeMode.dark`
 
----
-
-### 🎯 `app_theme.dart`
-
-Defines the application-level `ThemeData`.
-
----
-
-## 🛠️ How to Use
-
-1. Edit `colors.json`
-2. Run the generator
-3. Run the Flutter app
+It does **not** build themes or access tokens.
 
 ---
 
 ## 🧾 Summary
 
-This project provides a **robust, maintainable, and scalable theming foundation** for Flutter applications using design tokens and code generation.
+This project provides a **robust, maintainable theming foundation** for Flutter applications using design tokens, build-time generation, and Cubit-based runtime control.
